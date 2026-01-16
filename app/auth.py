@@ -1,23 +1,22 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
-from app.models import User
+from app.models import User, Event
 
 auth_bp = Blueprint('auth', __name__)
 
 
 @auth_bp.route('/')
 def index():
-    if current_user.is_authenticated:
-        return redirect(url_for('events.calendar'))
-
-    # Check if any admin exists
+    # Check if any admin exists, redirect to register if not
     admin_exists = User.query.filter_by(is_admin=True).first() is not None
 
     if not admin_exists:
         return redirect(url_for('auth.register'))
 
-    return redirect(url_for('auth.login'))
+    # Query all events ordered by date for the main page
+    events = Event.query.order_by(Event.date.asc()).all()
+    return render_template('main.html', events=events)
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
