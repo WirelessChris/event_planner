@@ -37,6 +37,7 @@ export class EventsController {
       date: event.date,
       start_time: event.startTime || '',
       end_time: event.endTime || '',
+      volunteers: event.volunteers || [],
     };
   }
 

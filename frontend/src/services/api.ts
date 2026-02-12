@@ -59,6 +59,7 @@ export interface EventDetail {
   date: string;
   start_time: string;
   end_time: string;
+  volunteers: string[];
 }
 
 export interface CreateEventData {

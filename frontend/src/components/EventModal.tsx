@@ -14,6 +14,7 @@ function EventModal({ eventId, selectedDate, onClose, onSave }: EventModalProps)
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [volunteers, setVolunteers] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -38,6 +39,7 @@ function EventModal({ eventId, selectedDate, onClose, onSave }: EventModalProps)
       setDate(event.date);
       setStartTime(event.start_time || '');
       setEndTime(event.end_time || '');
+      setVolunteers(event.volunteers || []);
     } catch {
       setError('Failed to load event');
     }
@@ -82,6 +84,17 @@ function EventModal({ eventId, selectedDate, onClose, onSave }: EventModalProps)
     } catch {
       setError('Failed to delete event');
       setLoading(false);
+    }
+  };
+
+  const handleRemoveVolunteer = async (name: string) => {
+    if (!eventId) return;
+
+    try {
+      await eventsApi.removeVolunteer(eventId, name);
+      setVolunteers(volunteers.filter((v) => v !== name));
+    } catch {
+      setError('Failed to remove volunteer');
     }
   };
 
@@ -147,6 +160,31 @@ function EventModal({ eventId, selectedDate, onClose, onSave }: EventModalProps)
               />
             </div>
           </div>
+
+          {isEditing && (
+            <div className="form-group">
+              <label>Volunteers ({volunteers.length})</label>
+              {volunteers.length === 0 ? (
+                <p style={{ color: '#666', fontSize: '13px' }}>No volunteers yet</p>
+              ) : (
+                <div className="volunteer-list">
+                  {volunteers.map((name) => (
+                    <div key={name} className="volunteer-item">
+                      <span>{name}</span>
+                      <button
+                        type="button"
+                        className="btn-remove-volunteer"
+                        onClick={() => handleRemoveVolunteer(name)}
+                        title="Remove volunteer"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="modal-actions">
             {isEditing && (
